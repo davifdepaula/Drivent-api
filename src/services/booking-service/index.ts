@@ -16,17 +16,16 @@ async function lookingVerifications(userId: number, roomId: number) {
   if (!ticket) {
     throw notFoundError();
   }
-  if (ticket.status !== 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
+  if (ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
     throw forbiddenError();
   }
-  console.log('pass');
-
+  console.log('não passa daqui');
   const room = await hotelRepository.findRoomByBookingId(roomId);
   if (!room) {
     throw notFoundError();
   }
   if (room.capacity <= room.Booking.length) {
-    throw notFoundError();
+    throw forbiddenError();
   }
   return;
 }
@@ -56,8 +55,8 @@ async function putBooking(userId: number, roomId: number, bookingId: number) {
   return booking;
 }
 
-export type RoomIdParam = Pick<Booking, 'roomId'>;
-export type BookingIdParam = { bookingId: number };
+export type RoomId = Pick<Booking, 'roomId'>;
+export type BookingId = { bookingId: number };
 
 const bookingService = {
   getBooking,
