@@ -6,7 +6,7 @@ import enrollmentRepository from '@/repositories/enrollment-repository';
 import hotelRepository from '@/repositories/hotel-repository';
 import ticketsRepository from '@/repositories/tickets-repository';
 
-async function lookingVerifications(userId: number, roomId: number) {
+async function lookingVerifications(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
   if (!enrollment) {
     throw notFoundError();
@@ -19,7 +19,11 @@ async function lookingVerifications(userId: number, roomId: number) {
   if (ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
     throw forbiddenError();
   }
-  console.log('não passa daqui');
+
+  return;
+}
+
+async function roomVerifications(roomId: number) {
   const room = await hotelRepository.findRoomByBookingId(roomId);
   if (!room) {
     throw notFoundError();
@@ -39,17 +43,20 @@ async function getBooking(userId: number) {
 }
 
 async function postBooking(userId: number, roomId: number) {
-  await lookingVerifications(userId, roomId);
+  await lookingVerifications(userId);
+  await roomVerifications(roomId);
   const booking = await bookingRepository.includeBooking(userId, roomId);
   return booking;
 }
 
 async function putBooking(userId: number, roomId: number, bookingId: number) {
-  await lookingVerifications(userId, roomId);
-  const checkIfexistbooking = await bookingRepository.getBookingByUserAndBooking(userId, bookingId);
+  await lookingVerifications(userId);
+  const checkIfexistbooking = await bookingRepository.findBooking(userId);
   if (!checkIfexistbooking) {
-    throw notFoundError();
+    throw forbiddenError();
   }
+
+  await roomVerifications(roomId);
 
   const booking = await bookingRepository.updateBooking(userId, roomId, bookingId);
   return booking;
