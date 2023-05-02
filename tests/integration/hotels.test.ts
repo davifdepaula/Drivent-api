@@ -173,9 +173,7 @@ describe('GET /hotels/:hotelId', () => {
       const ticketType = await createTicketTypeWithHotel();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const payment = await createPayment(ticket.id, ticketType.price);
-
       const createdHotel = await createHotel();
-
       const response = await server.get('/hotels/100').set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.NOT_FOUND);
@@ -223,21 +221,9 @@ describe('GET /hotels/:hotelId', () => {
       const ticketType = await createTicketTypeWithHotel();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const payment = await createPayment(ticket.id, ticketType.price);
-
       const createdHotel = await createHotel();
-
       const response = await server.get(`/hotels/${createdHotel.id}`).set('Authorization', `Bearer ${token}`);
-
       expect(response.status).toEqual(httpStatus.NOT_FOUND);
-
-      /* expect(response.body).toEqual({
-        id: createdHotel.id,
-        name: createdHotel.name,
-        image: expect.any(String),
-        createdAt: createdHotel.createdAt.toISOString(),
-        updatedAt: createdHotel.updatedAt.toISOString(),
-        Rooms: [],
-      }); */
     });
   });
 });

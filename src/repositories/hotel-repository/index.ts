@@ -1,3 +1,4 @@
+import { Booking, Room } from '@prisma/client';
 import { prisma } from '@/config';
 
 async function findHotels() {
@@ -5,7 +6,7 @@ async function findHotels() {
 }
 
 async function findRoomsByHotelId(hotelId: number) {
-  return prisma.hotel.findFirst({
+  return prisma.hotel.findUnique({
     where: {
       id: hotelId,
     },
@@ -15,9 +16,17 @@ async function findRoomsByHotelId(hotelId: number) {
   });
 }
 
+async function findRoomByBookingId(id: number): Promise<Room & { Booking: Booking[] }> {
+  return prisma.room.findUnique({
+    where: { id },
+    include: { Booking: true },
+  });
+}
+
 const hotelRepository = {
   findHotels,
   findRoomsByHotelId,
+  findRoomByBookingId,
 };
 
 export default hotelRepository;
